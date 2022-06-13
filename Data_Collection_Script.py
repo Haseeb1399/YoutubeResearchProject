@@ -79,50 +79,85 @@ def get_ad_info(driver, movie_id):
 def driver_code(driver):
 
     list_of_urls = [
-        "https://www.youtube.com/watch?v=z2WcI2Hr_Co",
-        "https://www.youtube.com/watch?v=fL-XnEuXajY",
-        "https://www.youtube.com/watch?v=Kygad1DiJ04",
-        "https://www.youtube.com/watch?v=fQjertX8xjM",
-        "https://www.youtube.com/watch?v=WcOJ2mRlg4Y",
-        "https://www.youtube.com/watch?v=wvz97-lNPH8",
-        "https://www.youtube.com/watch?v=Lq1xEf9wWEY",
-        "https://www.youtube.com/watch?v=_WWsKXmttEw",
-        "https://www.youtube.com/watch?v=m1r6WysI1cQ",
-        "https://www.youtube.com/watch?v=OXHCt8Ym9gw",
-        "https://www.youtube.com/watch?v=a_BEn1G2d5o",
-        "https://www.youtube.com/watch?v=0x_5vG7SUKE",
-        "https://www.youtube.com/watch?v=vdWLp2wKEa4",
-        "https://www.youtube.com/watch?v=NgsWGfUlwJI",
-        "https://www.youtube.com/watch?v=7uTk-oCNfTI",
-        "https://www.youtube.com/watch?v=VwlFSBpJRsM",
-        "https://www.youtube.com/watch?v=Tr6VA3A8PcU",
-        "https://www.youtube.com/watch?v=MWNpBHATT-w",
+        "https://www.youtube.com/watch?v=7XpyUV6BfMA",
+        "https://www.youtube.com/watch?v=a-66x7RjlGE",
+        "https://www.youtube.com/watch?v=eL7QpeT2ITE",
+        "https://www.youtube.com/watch?v=scWWtJ5yic0",
+        "https://www.youtube.com/watch?v=IRpxHYEt-xk",
+        "https://www.youtube.com/watch?v=PxVZf_lbVCM",
+        "https://www.youtube.com/watch?v=OFywZLXUceM",
+        "https://www.youtube.com/watch?v=K0DxVEQiQx4",
+        "https://www.youtube.com/watch?v=LPntr-moiBM",
+        "https://www.youtube.com/watch?v=7SKfpXpW2Bc",
+        "https://www.youtube.com/watch?v=kXpOEzNZ8hQ",
+        "https://www.youtube.com/watch?v=dsOfWhdSmXQ",
+        "https://www.youtube.com/watch?v=wMICplh-bhw",
+        "https://www.youtube.com/watch?v=7G_aNAd9IiQ",
+        "https://www.youtube.com/watch?v=NjUNo2U55D0",
+        "https://www.youtube.com/watch?v=PYYWWivHORQ",
+        "https://www.youtube.com/watch?v=VajZGDxMgfk",
+        "https://www.youtube.com/watch?v=GdoBJbjIWRQ",
+        "https://www.youtube.com/watch?v=0nOrTI3WT1s",
+        "https://www.youtube.com/watch?v=t8YQvdQa_mA",
+        "https://www.youtube.com/watch?v=EcSBD5dLbOA",
+        "https://www.youtube.com/watch?v=PnW6kcl4Yp8",
+        "https://www.youtube.com/watch?v=ig6NiVr7TpE",
+        "https://www.youtube.com/watch?v=_WlgWvWSgos",
+        "https://www.youtube.com/watch?v=QUVZ6hnEPQc",
+        "https://www.youtube.com/watch?v=Eu65eY3Fvgo",
+        "https://www.youtube.com/watch?v=Aa-Frqm4eQU",
+        "https://www.youtube.com/watch?v=RdvIsNUtNzk",
+        "https://www.youtube.com/watch?v=7IV9CeorNqU",
+        "https://www.youtube.com/watch?v=AC1gxPDRmv4",
+        "https://www.youtube.com/watch?v=NK9Cz_mdms8",
+        "https://www.youtube.com/watch?v=z2EOZOxC6VE",
+        "https://www.youtube.com/watch?v=29mOKSd0f-E",
+        "https://www.youtube.com/watch?v=izb0NbfuUr8",
+        "https://www.youtube.com/watch?v=8sdV6sTq_Jc",
+        "https://www.youtube.com/watch?v=rfOmB9tx3Bc",
+        "https://www.youtube.com/watch?v=kwlGsNyr5e8",
+        "https://www.youtube.com/watch?v=ZIzP-IHLbAU",
+        "https://www.youtube.com/watch?v=gmgbU-zj-FI",
+        "https://www.youtube.com/watch?v=tpStfn9MLDM",
+        "https://www.youtube.com/watch?v=k9p9yL9RbIM",
+        "https://www.youtube.com/watch?v=qVUgtDqCwKM",
+        "https://www.youtube.com/watch?v=psLxq1-y-Uw",
+        "https://www.youtube.com/watch?v=0h9GDCoyyJs",
+        "https://www.youtube.com/watch?v=wjhBeaCkscg",
+        "https://www.youtube.com/watch?v=TuBQoU26-LQ",
+        "https://www.youtube.com/watch?v=jMl3hphx8GI",
+        "https://www.youtube.com/watch?v=hmIlskBr1Hw",
         "https://www.youtube.com/watch?v=Hwybp38GnZw",
-        "https://www.youtube.com/watch?v=VNVV41VIBV8",
-        "https://www.youtube.com/watch?v=9eE0GTSsNrk",
-        "https://www.youtube.com/watch?v=R77hSoAyXeY",
-        "https://www.youtube.com/watch?v=6W0VySsuc94",
-        "https://www.youtube.com/watch?v=LdJeg54DWWY",
-        "https://www.youtube.com/watch?v=0Ix1vRaqva4",
-        "https://www.youtube.com/watch?v=o0xuJK1VMAM",
-        "https://www.youtube.com/watch?v=j2gAVtEe-QU",
-        "https://www.youtube.com/watch?v=N6tv11_KMiM",
-        "https://www.youtube.com/watch?v=HgrC_h8-2FM",
-        "https://www.youtube.com/watch?v=DVXdc5Wxv5k",
-        "https://www.youtube.com/watch?v=40q1eiOlzi4",
-        "https://www.youtube.com/watch?v=aJiRhUPTAUM",
-        "https://www.youtube.com/watch?v=U2BoSsIyyks",
-        "https://www.youtube.com/watch?v=-_b72e4mV-g",
-        "https://www.youtube.com/watch?v=2lpPFLxhTkw",
-        "https://www.youtube.com/watch?v=VFCwRBonQiM",
-        "https://www.youtube.com/watch?v=a4MugKAb_dM",
-        "https://www.youtube.com/watch?v=EgoRy9YcwUg",
-        "https://www.youtube.com/watch?v=aXYQcYRsZiQ",
-        "https://www.youtube.com/watch?v=OkcAGO6gHIk",
-        "https://www.youtube.com/watch?v=Mva_NeLchRg",
-        "https://www.youtube.com/watch?v=kgDjUv9bBu4",
-        "https://www.youtube.com/watch?v=YdZkLJi9fuk",
-        "https://www.youtube.com/watch?v=Lvea6VTC_M0",
+        "https://www.youtube.com/watch?v=nZX8mY251nw",
+        "https://www.youtube.com/watch?v=tpFljbJxZiw",
+        "https://www.youtube.com/watch?v=6xoB4ZiKKn0",
+        "https://www.youtube.com/watch?v=c6ri-MFdNLY",
+        "https://www.youtube.com/watch?v=7FVaxc-4-FQ",
+        "https://www.youtube.com/watch?v=OXHCt8Ym9gw",
+        "https://www.youtube.com/watch?v=IYQ42VKfR0U",
+        "https://www.youtube.com/watch?v=uY9gP3ZG20w",
+        "https://www.youtube.com/watch?v=guN4GPzFmoI",
+        "https://www.youtube.com/watch?v=qUmt7OSHM50",
+        "https://www.youtube.com/watch?v=-Hb0tcPNki8",
+        "https://www.youtube.com/watch?v=q3nIItk0-wU",
+        "https://www.youtube.com/watch?v=jU11bwiJl_8",
+        "https://www.youtube.com/watch?v=OAti-mH_QZY",
+        "https://www.youtube.com/watch?v=Z71k9rfJQ1c",
+        "https://www.youtube.com/watch?v=hyrNWGY8YFc",
+        "https://www.youtube.com/watch?v=2ymz6PiCWIw",
+        "https://www.youtube.com/watch?v=qMBGouonBnA",
+        "https://www.youtube.com/watch?v=Tb6xGDiSscc",
+        "https://www.youtube.com/watch?v=bSAlE_WgHxY",
+        "https://www.youtube.com/watch?v=BwEbIu5b4Ds",
+        "https://www.youtube.com/watch?v=YOyJKLMCXKA",
+        "https://www.youtube.com/watch?v=VCgeokWbRfc",
+        "https://www.youtube.com/watch?v=3Ml0DrBH9h8",
+        "https://www.youtube.com/watch?v=082UkRjqojw",
+        "https://www.youtube.com/watch?v=CjGcIAnuH1M",
+        "https://www.youtube.com/watch?v=45kSKBfA3Jo",
+        "https://www.youtube.com/watch?v=OYe9vYhsGws",
+        "https://www.youtube.com/watch?v=Y2548TkfH8k",
+        "https://www.youtube.com/watch?v=xZQ_Qw2IJOQ",
     ]
 
     for index, url in enumerate(list_of_urls):
@@ -155,7 +190,7 @@ def driver_code(driver):
         video_playing = driver.execute_script(
             "return document.getElementById('movie_player').getPlayerState()"
         )
-
+        time.sleep(0.5)
         if video_playing != 1:
             print("Video has now started playing")
             movie_player.send_keys(Keys.SPACE)
@@ -167,6 +202,8 @@ def driver_code(driver):
         video_duration_in_seconds = driver.execute_script(
             'return document.getElementById("movie_player").getDuration()'
         )
+        if video_duration_in_seconds > 3600:
+            continue
 
         video_info_details = {}
         unique_add_count = 0
@@ -182,9 +219,6 @@ def driver_code(driver):
             video_playing = driver.execute_script(
                 "return document.getElementById('movie_player').getPlayerState()"
             )
-            if video_playing != 1:
-                if video_playing != 0:
-                    movie_player.send_keys(Keys.SPACE)
 
             time.sleep(0.5)
             ad_playing = driver.execute_script(
@@ -194,6 +228,10 @@ def driver_code(driver):
             video_played_in_seconds = driver.execute_script(
                 'return document.getElementById("movie_player").getCurrentTime()'
             )
+            # print(video_playing)
+            if video_playing != 1 and not ad_playing:
+                if video_playing != 0:
+                    movie_player.send_keys(Keys.SPACE)
 
             if ad_playing:
                 # Ad is being played
@@ -220,7 +258,11 @@ def driver_code(driver):
                             video_url = "https://www.youtube.com/watch?v=" + ad_id
                             video_name = "Advertisement" + "@" + str(unique_add_count)
                             download_video(
-                                video_url, new_dir, video_name, ad_id, resolution
+                                video_url,
+                                new_dir,
+                                video_name,
+                                (ad_id.strip()),
+                                resolution,
                             )
 
                         else:
@@ -232,6 +274,7 @@ def driver_code(driver):
                 file_dir = new_dir + "/stream_details.txt"
                 file_dir_two = new_dir + "/buffer_details.txt"
                 file_dir_three = new_dir + "/error_details.txt"
+                file_dir_four = new_dir + "/ResolutionChanges.txt"
                 video_info_details["Main_Video"] = {
                     "Url": url,
                     "Total Duration": video_duration_in_seconds,
@@ -247,6 +290,9 @@ def driver_code(driver):
 
                 with open(file_dir_three, "w+") as f:
                     f.write(json.dumps(error_list))
+
+                with open(file_dir_four, "w+") as f:
+                    f.write(json.dumps(vid_res_at_each_second))
 
                 video_info_details = {}
                 unique_add_count = 0
