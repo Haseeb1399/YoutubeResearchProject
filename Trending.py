@@ -26,6 +26,7 @@ def handleType(url: str, filename):
         if link_temp == 'javascript:overall();' or link_temp == 'javascript:music();':
             continue
         result = 'https://www.youtube.com/watch?v={}'.format(link_temp)
+        result = "" + result + ""
         final_links.append(result)
     # to remove the duplicates
     final_links = list(dict.fromkeys(final_links))
@@ -33,7 +34,7 @@ def handleType(url: str, filename):
     with open(filename, 'w') as f:
         for link in final_links:
             # added speech quotes just so literal strings are written to the file
-            f.write(f"'{link}'\n")
+            f.write(f"'{link}',\n")
 
 
 if __name__ == '__main__':
