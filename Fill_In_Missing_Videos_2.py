@@ -10,6 +10,8 @@ Author: Haseeb Ahmed 23100035 @ lums.edu.pk
 
 rootdir = "C:/Users/hp/Desktop/Sproj/Active"  ##Set Root folder directory.
 
+valid_res = ["426x240", "640x360", "854x480", "1280x720", "1920x1080"]
+
 
 def download_video(video_url, folder_name, type_of, video_id, resolution):
     try:
@@ -52,12 +54,17 @@ for (
                     with open(path_two) as new_f:
                         string = new_f.read()
                         info_dict = json.loads(string)
-                        advert_number = list(info_dict.keys()).index(url_id) + 1
+                        try:
+                            advert_number = list(info_dict.keys()).index(url_id) + 1
+                            advert_name = "Advertisement" + "@" + str(advert_number)
+                        except:
+                            advert_name = "MainVideo"
 
-                    advert_name = "Advertisement" + "@" + str(advert_number)
                     downloaded_check = False
                     while not downloaded_check:
                         time.sleep(5)
+                        if res.split("@")[0].strip() not in valid_res:
+                            res = "640x360@24"
                         downloaded_check = download_video(
-                            url, subdir, advert_name, url_id, res
+                            url, subdir, advert_name, (url_id.strip()), res
                         )
