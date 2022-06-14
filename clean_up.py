@@ -1,7 +1,7 @@
 '''
 Code Author: Harris Ahmad
 
-This script runs navigates through your main directory and removes any empty folders (if any)
+This script navigates through your main directory and removes any empty folders (if any)
 to make it easy for you to keep track of what folders have actual content. 
 '''
 
