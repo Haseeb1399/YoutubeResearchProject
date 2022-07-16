@@ -68,8 +68,7 @@ def get_ad_info(driver, movie_id):
 
 def driver_code(driver):
     list_of_urls = [
-        "https://www.youtube.com/watch?v=FkheNrTgo6I",
-        "https://www.youtube.com/watch?v=QUVZ6hnEPQc"
+       "https://www.youtube.com/watch?v=tF_Yksg92ro"
     ]
 
     for index, url in enumerate(list_of_urls):

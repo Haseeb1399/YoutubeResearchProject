@@ -13,7 +13,7 @@ import googleapiclient.errors
 Author: Haseeb Ahmed 23100035 @ lums.edu.pk
 """
 
-rootdir = "C:/Users/hp/Desktop/Sproj/Active"  ##Set Root folder directory.
+rootdir = ".\\"  # Set Root folder directory.
 
 valid_res = ["426x240", "640x360", "854x480", "1280x720", "1920x1080"]
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
@@ -69,3 +69,21 @@ for (
 
             with open(path, "w") as f:
                 f.write(json.dumps(new_dict))
+
+print("Added time!")
+"""
+240p 1080p --> Main Video
+we also have the video at the resolution it was played it. --> Keep? Remove?
+
+360p 
+
+240p 1080p --> Each Ad.
+
+"""
+
+"""
+
+Ubunutu 18. --> System--> 2.7
+Virt-manager > 3.4
+
+"""
