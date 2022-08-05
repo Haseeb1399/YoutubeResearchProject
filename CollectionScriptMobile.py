@@ -1,4 +1,3 @@
-import time
 import warnings
 import json
 from selenium import webdriver
@@ -7,60 +6,75 @@ from selenium.webdriver.chrome.options import Options
 from pathlib import Path
 
 mobile_emulation = {
-   "deviceMetrics": { "width": 360, "height": 640, "pixelRatio": 3.0 },
-   "userAgent": "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19" 
+    "deviceMetrics": {"width": 360, "height": 640, "pixelRatio": 3.0},
+    "userAgent": "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19"
 }
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 chrome_options = Options()
 chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-error_list=[]
+error_list = []
 
 
-def enable_stats_for_nerds(driver):
+def enable_stats_for_nerds(driver: webdriver.Chrome):
 
-   settings = driver.find_element_by_xpath("/html/body/ytm-app/ytm-mobile-topbar-renderer/header/div/ytm-menu/button")
-   settings.click()
+    settings = driver.find_element_by_xpath(
+        "/html/body/ytm-app/ytm-mobile-topbar-renderer/header/div/ytm-menu/button")
+    settings.click()
 
-   playback_settings = driver.find_element_by_xpath("/html/body/div[2]/div/ytm-menu-item[3]/button")
-   playback_settings.click()
+    playback_settings = driver.find_element_by_xpath(
+        "/html/body/div[2]/div/ytm-menu-item[3]/button")
+    playback_settings.click()
 
-#    stats_for_nerds = driver.find_element_by_xpath("/html/body/div[2]/dialog/div[2]/ytm-menu-item[2]/button")
-   stats_for_nerds=driver.execute_script("document.getElementsByClassName('menu-item-button')[1].click()")
+# on the settings page, navigate to the stats for nerds option
+    stats_for_nerds = driver.find_element_by_xpath(
+        "/html/body/div[2]/dialog/div[2]/ytm-menu-item[2]/button")
+    # click on stats
+    stats_for_nerds.click()
+    exit_dialog = driver.find_element_by_xpath(
+        "/html/body/div[2]/dialog/div[3]/c3-material-button/button")
+    exit_dialog.click()
 
-   exit_dialog = driver.find_element_by_xpath("/html/body/div[2]/dialog/div[3]/c3-material-button/button")
-   exit_dialog.click()
 
-def start_playing_video(driver):
+def start_playing_video(driver: webdriver.Chrome):
     player_state = driver.execute_script(
-      "return document.getElementById('movie_player').getPlayerState()"
+        "return document.getElementById('movie_player').getPlayerState()"
     )
-    if player_state==5:
-        driver.execute_script("document.getElementsByClassName('ytp-large-play-button ytp-button')[0].click()")
+    if player_state == 5:
+        # driver.execute_script(
+        #     "document.getElementsByClassName('ytp-large-play-button ytp-button')[0].click()")
+        play = driver.find_element_by_xpath("/html/body/div[@id='player-container-id']/div[@id='player']/div[@id='movie_player']/div[@class='ytp-cued-thumbnail-overlay']/button[@class='ytp-large-play-button ytp-button']")
+        play.click()
     else:
         raise Exception("Invalid state!")
 
 
-def play_video_if_not_playing(driver):
-   player_state = driver.execute_script(
-      "return document.getElementById('movie_player').getPlayerState()"
-   )    
-   if player_state != 1:
-      driver.execute_script(
-         "document.getElementsByClassName('icon-button player-control-play-pause-icon')[0].click()"
-      )
+def play_video_if_not_playing(driver: webdriver.Chrome):
+    player_state = driver.execute_script(
+        "return document.getElementById('movie_player').getPlayerState()"
+    )
+    if player_state != 1:
+        movie_player = driver.find_element_by_id("movie_player")
+        hover = ActionChains(driver).move_to_element(movie_player)
+        hover.perform()
+        ActionChains(driver).context_click(movie_player).perform()
 
-def get_ad_info(driver, movie_id):
+        # now click on the large play button
+        large_play_button = driver.find_element_by_xpath("/html/body/div[@id='player-container-id']/div[@id='player-control-container']/ytm-custom-control/div[@id='player-control-overlay']/div[@class='player-controls-content']/div[4]/div[@class='player-controls-middle center']/button[@class='icon-button player-control-play-pause-icon']/c3-icon/svg[@class='[object SVGAnimatedString]']/g[@class='[object SVGAnimatedString]']/path[@class='[object SVGAnimatedString]']")
+        large_play_button.click()
+
+
+def get_ad_info(driver: webdriver.Chrome, movie_id):
     # print("Inside Video info", movie_id)
 
     ad_id = driver.execute_script(
         'return document.getElementsByClassName("html5-video-info-panel-content")[0].children[0].children[1].textContent.replace(" ","").split("/")[0]'
     )
-    time.sleep(0.3)
+    # time.sleep(0.3)
     skippable_add = driver.execute_script(
         'return document.getElementsByClassName("ytp-ad-skip-button-container").length'
     )
-    print("Add is skippable? ",skippable_add)
+    print("Add is skippable? ", skippable_add)
     if skippable_add:
         try:
             skip_duration = (
@@ -79,46 +93,49 @@ def get_ad_info(driver, movie_id):
     start_resolution_check = start_resolution.split("@")[0]
 
     attempt_count = 0
-    while start_resolution_check == "0x0" or attempt_count<10:
+    while start_resolution_check == "0x0" or attempt_count < 10:
         start_resolution = driver.execute_script(
             'return document.getElementsByClassName("html5-video-info-panel-content")[0].children[2].children[1].textContent.replace(" ","").split("/")[0]'
         )
         start_resolution_check = start_resolution
-        attempt_count+=1
+        attempt_count += 1
 
-    time.sleep(0.5)
+    # time.sleep(0.5)
 
-    print(str(ad_id) == str(movie_id),ad_id,movie_id)
+    print(str(ad_id) == str(movie_id), ad_id, movie_id)
     while str(ad_id) == str(movie_id):
         ad_id = driver.execute_script(
             'return document.getElementsByClassName("html5-video-info-panel-content")[0].children[0].children[1].textContent.replace(" ","").split("/")[0]'
         )
-        print(str(ad_id) == str(movie_id),ad_id,movie_id)
+        print(str(ad_id) == str(movie_id), ad_id, movie_id)
 
     # print("Ad Id is" + str(ad_id))
     return ad_id, skippable_add, skip_duration, start_resolution
 
 
 def driver_code(driver):
-    list_of_urls=[
-        'https://www.youtube.com/watch?v=QEXycDe5abg', 
-        'https://www.youtube.com/watch?v=0hktCJ64uH4', 
-        'https://www.youtube.com/watch?v=gMhqxShOxpY', 
-        'https://www.youtube.com/watch?v=Zhpk3ML7bIQ', 
-        'https://www.youtube.com/watch?v=Cp-rJ6hGqlw', 
-        'https://www.youtube.com/watch?v=wHiqO9LkeIM', 
-        'https://www.youtube.com/watch?v=SUyzF0MidbQ', 
-        'https://www.youtube.com/watch?v=1dbAMXOKt-A', 
-        'https://www.youtube.com/watch?v=g4ppjLWHpFc', 
-        "https://www.youtube.com/watch?v=8umKYwwKxjQ", 
-        "https://www.youtube.com/watch?v=T-_zSI4OuJI", 
+    list_of_urls = [
+        'https://www.youtube.com/watch?v=QEXycDe5abg',
+        'https://www.youtube.com/watch?v=0hktCJ64uH4',
+        'https://www.youtube.com/watch?v=gMhqxShOxpY',
+        'https://www.youtube.com/watch?v=Zhpk3ML7bIQ',
+        'https://www.youtube.com/watch?v=Cp-rJ6hGqlw',
+        'https://www.youtube.com/watch?v=wHiqO9LkeIM',
+        'https://www.youtube.com/watch?v=SUyzF0MidbQ',
+        'https://www.youtube.com/watch?v=1dbAMXOKt-A',
+        'https://www.youtube.com/watch?v=g4ppjLWHpFc',
+        "https://www.youtube.com/watch?v=8umKYwwKxjQ",
+        "https://www.youtube.com/watch?v=T-_zSI4OuJI",
         "https://www.youtube.com/watch?v=-YDlvZAsHmc",
         "https://www.youtube.com/watch?v=J_qCRmQXJKs",
         "https://www.youtube.com/watch?v=BUEAKynYvx4",
         "https://www.youtube.com/watch?v=eXbjEl3xfMk"
+        "https://www.youtube.com/watch?v=6JCLY0Rlx6Q",
+        "https://www.youtube.com/watch?v=0hktCJ64uH4",
+        "https://www.youtube.com/watch?v=mhlEfHv-LHo",
     ]
 
-    for index,url in enumerate(list_of_urls):
+    for index, url in enumerate(list_of_urls):
         global error_list
         video_info_details = {}
         error_list = []
@@ -134,28 +151,31 @@ def driver_code(driver):
         new_dir = "./" + str(index + 1)
 
         driver.get(url)
-        time.sleep(2)
-        
-        #Enable Stats
-        enable_stats_for_nerds(driver)
-        #Start Playing Video
+        # time.sleep(2)
+
+        # for mobile phones, we first need to play the video to enable stats for nerd
         start_playing_video(driver)
 
-        ##Check If ad played at start
-        time.sleep(0.5)
+        # video is being played now play the video
+        enable_stats_for_nerds(driver)
+        # Start Playing Video
+
+        # Check If ad played at start
+        # time.sleep(0.5)
         ad_playing = driver.execute_script(
             "return document.getElementsByClassName('ad-showing').length"
         )
         print(movie_id)
         if ad_playing:
             print("ad at start of video!")
-            ad_id, skippable, skip_duration, resolution = get_ad_info(driver, movie_id)
+            ad_id, skippable, skip_duration, resolution = get_ad_info(
+                driver, movie_id)
             while True:
                 if ad_id == movie_id:
-                    ad_id,_,_,_ = get_ad_info(driver,movie_id)
+                    ad_id, _, _, _ = get_ad_info(driver, movie_id)
                 else:
                     break
-    
+
             if ad_id not in video_info_details.keys():
                 unique_add_count += 1
                 video_info_details[ad_id] = {
@@ -165,12 +185,12 @@ def driver_code(driver):
                     "Resolution": resolution,
                 }
                 buffer_size_with_ad.append(
-                    [ad_id,0.0] #Start of video. Main Buffer will be 0s.
+                    [ad_id, 0.0]  # Start of video. Main Buffer will be 0s.
                 )
                 previous_ad_id = ad_id
                 print("Advertisement " + str(unique_add_count) + " Data collected.")
 
-        time.sleep(0.5)
+        # time.sleep(0.5)
         video_duration_in_seconds = driver.execute_script(
             'return document.getElementById("movie_player").getDuration()'
         )
@@ -185,8 +205,8 @@ def driver_code(driver):
         video_playing = driver.execute_script(
             "return document.getElementById('movie_player').getPlayerState()"
         )
-        time.sleep(0.5)
-        
+        # time.sleep(0.5)
+
         ad_playing = driver.execute_script(
             "return document.getElementsByClassName('ad-showing').length"
         )
@@ -196,16 +216,16 @@ def driver_code(driver):
             print("Video is already playing")
 
         while True:
-            # time.sleep(0.5)
+            # # time.sleep(0.5)
             video_playing = driver.execute_script(
                 "return document.getElementById('movie_player').getPlayerState()"
             )
 
-            # time.sleep(0.5)
+            # # time.sleep(0.5)
             ad_playing = driver.execute_script(
                 "return document.getElementsByClassName('ad-showing').length"
             )
-            # time.sleep(0.5)
+            # # time.sleep(0.5)
             video_played_in_seconds = driver.execute_script(
                 'return document.getElementById("movie_player").getCurrentTime()'
             )
@@ -223,7 +243,7 @@ def driver_code(driver):
                 # if is_add_playing != "Pause (k)":
                 #     driver.execute_script("document.getElementsByClassName('html5-video-container')[0].click()")
 
-                time.sleep(0.5)
+                # time.sleep(0.5)
                 ad_id, skippable, skip_duration, resolution = get_ad_info(
                     driver, movie_id
                 )
