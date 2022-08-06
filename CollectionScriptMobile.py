@@ -1,5 +1,5 @@
 import warnings
-import json
+import orjson
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
@@ -17,7 +17,9 @@ error_list = []
 
 
 def enable_stats_for_nerds(driver: webdriver.Chrome):
-
+    '''
+    This function locates and enables stats for nerds
+    '''
     settings = driver.find_element_by_xpath(
         "/html/body/ytm-app/ytm-mobile-topbar-renderer/header/div/ytm-menu/button")
     settings.click()
@@ -37,12 +39,13 @@ def enable_stats_for_nerds(driver: webdriver.Chrome):
 
 
 def start_playing_video(driver: webdriver.Chrome):
+    '''
+    This function gets the state of the player and starts playing the video
+    '''
     player_state = driver.execute_script(
         "return document.getElementById('movie_player').getPlayerState()"
     )
     if player_state == 5:
-        # driver.execute_script(
-        #     "document.getElementsByClassName('ytp-large-play-button ytp-button')[0].click()")
         play = driver.find_element_by_xpath("/html/body/div[@id='player-container-id']/div[@id='player']/div[@id='movie_player']/div[@class='ytp-cued-thumbnail-overlay']/button[@class='ytp-large-play-button ytp-button']")
         play.click()
     else:
@@ -50,6 +53,9 @@ def start_playing_video(driver: webdriver.Chrome):
 
 
 def play_video_if_not_playing(driver: webdriver.Chrome):
+    '''
+    This function hovers over the youtube player, and plays the video
+    '''
     player_state = driver.execute_script(
         "return document.getElementById('movie_player').getPlayerState()"
     )
@@ -100,39 +106,21 @@ def get_ad_info(driver: webdriver.Chrome, movie_id):
         start_resolution_check = start_resolution
         attempt_count += 1
 
-    # time.sleep(0.5)
 
     print(str(ad_id) == str(movie_id), ad_id, movie_id)
     while str(ad_id) == str(movie_id):
         ad_id = driver.execute_script(
             'return document.getElementsByClassName("html5-video-info-panel-content")[0].children[0].children[1].textContent.replace(" ","").split("/")[0]'
         )
-        print(str(ad_id) == str(movie_id), ad_id, movie_id)
+    print(str(ad_id) == str(movie_id), ad_id, movie_id)
 
-    # print("Ad Id is" + str(ad_id))
-    return ad_id, skippable_add, skip_duration, start_resolution
+    if ad_id != 'empty_video':
+        return ad_id, skippable_add, skip_duration, start_resolution
 
 
 def driver_code(driver):
     list_of_urls = [
-        'https://www.youtube.com/watch?v=QEXycDe5abg',
-        'https://www.youtube.com/watch?v=0hktCJ64uH4',
-        'https://www.youtube.com/watch?v=gMhqxShOxpY',
-        'https://www.youtube.com/watch?v=Zhpk3ML7bIQ',
-        'https://www.youtube.com/watch?v=Cp-rJ6hGqlw',
-        'https://www.youtube.com/watch?v=wHiqO9LkeIM',
-        'https://www.youtube.com/watch?v=SUyzF0MidbQ',
-        'https://www.youtube.com/watch?v=1dbAMXOKt-A',
-        'https://www.youtube.com/watch?v=g4ppjLWHpFc',
-        "https://www.youtube.com/watch?v=8umKYwwKxjQ",
-        "https://www.youtube.com/watch?v=T-_zSI4OuJI",
-        "https://www.youtube.com/watch?v=-YDlvZAsHmc",
-        "https://www.youtube.com/watch?v=J_qCRmQXJKs",
-        "https://www.youtube.com/watch?v=BUEAKynYvx4",
-        "https://www.youtube.com/watch?v=eXbjEl3xfMk"
-        "https://www.youtube.com/watch?v=6JCLY0Rlx6Q",
-        "https://www.youtube.com/watch?v=0hktCJ64uH4",
-        "https://www.youtube.com/watch?v=mhlEfHv-LHo",
+        "https://youtube.com/watch?v=I1QgIOEUYIo"
     ]
 
     for index, url in enumerate(list_of_urls):
@@ -160,11 +148,20 @@ def driver_code(driver):
         enable_stats_for_nerds(driver)
         # Start Playing Video
 
-        # Check If ad played at start
-        # time.sleep(0.5)
+        # bug-fix: check if the duration of the video in 3600 seconds -- if so skip before collecting the data
+        video_duration_in_seconds = driver.execute_script(
+            'return document.getElementById("movie_player").getDuration()'
+        )
+        if video_duration_in_seconds >= 3600:
+            print(
+                video_duration_in_seconds, " Seconds. Video Skipped for being too Long!"
+            )
+            continue
+
         ad_playing = driver.execute_script(
             "return document.getElementsByClassName('ad-showing').length"
         )
+
         print(movie_id)
         if ad_playing:
             print("ad at start of video!")
@@ -190,26 +187,17 @@ def driver_code(driver):
                 previous_ad_id = ad_id
                 print("Advertisement " + str(unique_add_count) + " Data collected.")
 
-        # time.sleep(0.5)
-        video_duration_in_seconds = driver.execute_script(
-            'return document.getElementById("movie_player").getDuration()'
-        )
-        if video_duration_in_seconds >= 3600:
-            print(
-                video_duration_in_seconds, " Seconds. Video Skipped for being too Long!"
-            )
-            continue
 
         Path(new_dir).mkdir(parents=False, exist_ok=True)
 
         video_playing = driver.execute_script(
             "return document.getElementById('movie_player').getPlayerState()"
         )
-        # time.sleep(0.5)
 
         ad_playing = driver.execute_script(
             "return document.getElementsByClassName('ad-showing').length"
         )
+
         if video_playing != 1 and not ad_playing:
             play_video_if_not_playing(driver)
         else:
@@ -230,20 +218,10 @@ def driver_code(driver):
                 'return document.getElementById("movie_player").getCurrentTime()'
             )
 
-            # if video_playing != 1 and not ad_playing:
-            #     if video_playing != 0:
-            #         play_video_if_not_playing(driver)
-
             if ad_playing:
                 # Ad is being played
                 ad_just_played = True
-                # is_add_playing = driver.execute_script(
-                #     'return document.getElementsByClassName("ytp-play-button ytp-button")[0].title'
-                # )
-                # if is_add_playing != "Pause (k)":
-                #     driver.execute_script("document.getElementsByClassName('html5-video-container')[0].click()")
-
-                # time.sleep(0.5)
+                
                 ad_id, skippable, skip_duration, resolution = get_ad_info(
                     driver, movie_id
                 )
@@ -281,9 +259,7 @@ def driver_code(driver):
             elif video_playing == 0:
                 # Video has ended
                 file_dir = new_dir + "/stream_details.txt"
-                # file_dir_two = new_dir + "/buffer_details.txt"
                 file_dir_three = new_dir + "/error_details.txt"
-                # file_dir_four = new_dir + "/ResolutionChanges.txt"
                 file_dir_five = new_dir + "/BufferAdvert.txt"
                 Main_res = max(main_res_all, key=main_res_all.count)
                 video_info_details["Main_Video"] = {
@@ -293,26 +269,21 @@ def driver_code(driver):
                     "AvgBuffer": (sum(actual_buffer_reads) / len(actual_buffer_reads)),
                     "Resolution": Main_res,
                 }
-                with open(file_dir, "w+") as f:
-                    f.write(json.dumps(video_info_details))
 
-                # with open(file_dir_two, "w+") as f:
-                #     f.write(json.dumps(actual_buffer_reads))
+                with open(file_dir, "w+") as f:
+                    f.write(orjson.dumps(video_info_details).decode())
 
                 with open(file_dir_three, "w+") as f:
-                    f.write(json.dumps(error_list))
-
-                # with open(file_dir_four, "w+") as f:
-                #     f.write(json.dumps(vid_res_at_each_second))
+                    f.write(orjson.dumps(error_list).decode())
 
                 with open(file_dir_five, "w+") as f:
-                    f.write(json.dumps(buffer_size_with_ad))
+                    f.write(orjson.dumps(buffer_size_with_ad).decode())
+
                 video_info_details = {}
                 unique_add_count = 0
                 break
             else:
                 # Video is playing normally
-
                 # Record Resolution at each second
                 res = driver.execute_script(
                     'return document.getElementsByClassName("html5-video-info-panel-content")[0].children[2].children[1].textContent.replace(" ","").split("/")[0]'
