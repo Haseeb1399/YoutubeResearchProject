@@ -68,7 +68,7 @@ def play_video_if_not_playing(driver):
 def get_ad_info(driver, movie_id):
     # print("Inside Video info", movie_id)
 
-    time.sleep(0.5)
+    time.sleep(1)
     skippable_add = driver.execute_script(
         'return document.getElementsByClassName("ytp-ad-skip-button-container").length'
     )
@@ -137,16 +137,16 @@ def record_ad_buffer(driver,ad_length):
         current_time_retry=0
         while current_time_retry<10:
             try:
-                ad_played = to_seconds(
+                ad_played = float(
                     driver.execute_script(
-                        "return document.getElementsByClassName('ytp-ad-duration-remaining')[0].textContent"
+                        "return document.getElementsByClassName('video-stream html5-main-video')[0].currentTime"
                     )
                 )
                 break
             except:
                 current_time_retry+=1
 
-        ad_played_in_seconds = ad_length - ad_played
+        ad_played_in_seconds = ad_played
         ad_buffer_list.append((ad_buffer, ad_played_in_seconds,res))
 
         ad_playing = driver.execute_script(
@@ -155,10 +155,24 @@ def record_ad_buffer(driver,ad_length):
     
     return ad_buffer_list
 
+def get_ad_duration(driver):
+    length_retry=0
+    while length_retry<50:
+        try:
+            ad_length = (
+                driver.execute_script(
+                    "return document.getElementsByClassName('video-stream html5-main-video')[0].duration"
+                ))
+            ad_length=float(ad_length)
+            print("Ad length is!",ad_length)
+            return ad_length
+        except:
+            length_retry+=1
+
 
 def driver_code(driver):
     list_of_urls=[
-        "https://www.youtube.com/watch?v=gMhqxShOxpY",
+        # "https://www.youtube.com/watch?v=gMhqxShOxpY",
         "https://www.youtube.com/watch?v=oZ5HcJVyHPk",
         "https://www.youtube.com/watch?v=0hktCJ64uH4,"
         "https://www.youtube.com/watch?v=eXbjEl3xfMk",
@@ -230,6 +244,7 @@ def driver_code(driver):
         )
         print("Playing Video: ",movie_id)
         if ad_playing:
+            time.sleep(0.1)
             print("ad at start of video!")
             ad_id, skippable, skip_duration, resolution = get_ad_info(driver, movie_id)
             
@@ -246,17 +261,9 @@ def driver_code(driver):
                 [ad_id,0.0] #Start of video. Main Buffer will be 0s.
             )
             previous_ad_id = ad_id
-            length_retry=0
-            while length_retry<10:
-                try:
-                    ad_length = to_seconds(
-                        driver.execute_script(
-                            "return document.getElementsByClassName('ytp-ad-duration-remaining')[0].textContent"
-                        ))
-                    break
-                except:
-                    length_retry+=1
-            
+
+            ad_length=get_ad_duration(driver)
+
             ad_buf_details = record_ad_buffer(driver,ad_length)
             to_write = {"ad_length":ad_length,"buffer":ad_buf_details}
             ad_buffer_information[ad_id]=to_write
@@ -306,16 +313,7 @@ def driver_code(driver):
                 ad_just_played = True
                 
                 time.sleep(0.1)
-                length_retry=0
-                while length_retry<10:
-                    try:
-                        ad_length = to_seconds(
-                            driver.execute_script(
-                                "return document.getElementsByClassName('ytp-ad-duration-remaining')[0].textContent"
-                            ))
-                        break
-                    except:
-                        length_retry+=1
+                ad_length=get_ad_duration(driver)
 
 
                 ad_id, skippable, skip_duration, resolution = get_ad_info(
@@ -402,6 +400,7 @@ def driver_code(driver):
                     f.write(orjson.dumps(ad_buffer_information))
                 video_info_details = {}
                 unique_add_count = 0
+                print("Video Finished and details written to files!")
                 break
             else:
                 # Video is playing normally
@@ -443,7 +442,7 @@ def driver_code(driver):
                 previous_ad_id = url.split("=")[1]
 
 
-driver = webdriver.Chrome(options=chrome_options)
+driver = webdriver.Chrome(executable_path="/home/workspace7/Youtube-Project/DataCollection/chromedriver",options=chrome_options)
 
 driver.set_network_conditions(
     offline=False,
