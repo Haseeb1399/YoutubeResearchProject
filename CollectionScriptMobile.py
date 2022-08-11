@@ -178,7 +178,13 @@ def get_ad_duration(driver):
 
 def driver_code(driver):
     list_of_urls=[
-        # "https://www.youtube.com/watch?v=gMhqxShOxpY",
+        # "https://www.youtube.com/watch?v=J_qCRmQXJKs",
+        # "https://www.youtube.com/watch?v=BUEAKynYvx4",
+        # "https://www.youtube.com/watch?v=wcDcOnR6sl8",
+        # "https://www.youtube.com/watch?v=qsOCW8YMRyw",
+        # "https://www.youtube.com/watch?v=4M5jGbVfItE",
+        # "https://www.youtube.com/watch?v=BddP6PYo2gs",
+        # "https://www.youtube.com/watch?v=UWQi7mSy_qY",
         ]
 
     for index,url in enumerate(list_of_urls):
