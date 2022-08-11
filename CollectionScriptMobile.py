@@ -430,7 +430,7 @@ def driver_code(driver):
                 previous_ad_id = url.split("=")[1]
 
 
-driver = webdriver.Chrome(executable_path="/home/workspace7/Youtube-Project/DataCollection/chromedriver",options=chrome_options)
+driver = webdriver.Chrome(options=chrome_options)
 
 driver.set_network_conditions(
     offline=False,
