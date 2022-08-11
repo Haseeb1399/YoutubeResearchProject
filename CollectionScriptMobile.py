@@ -68,10 +68,13 @@ def play_video_if_not_playing(driver):
 def get_ad_info(driver, movie_id):
     # print("Inside Video info", movie_id)
 
-    time.sleep(1)
-    skippable_add = driver.execute_script(
-        'return document.getElementsByClassName("ytp-ad-skip-button-container").length'
-    )
+    skip_retry=0
+    time.sleep(0.5)
+    while skip_retry<20:
+        skippable_add = driver.execute_script(
+            'return document.getElementsByClassName("ytp-ad-skip-button-container").length'
+        )
+        skip_retry+=1
 
     if skippable_add:
         skip_try=0
@@ -95,14 +98,16 @@ def get_ad_info(driver, movie_id):
     start_resolution = driver.execute_script(
         'return document.getElementsByClassName("html5-video-info-panel-content")[0].children[2].children[1].textContent.replace(" ","").split("/")[0]'
     )
-    start_resolution_check = start_resolution.split("@")[0]
+    start_resolution = start_resolution.split("@")[0]
 
     attempt_count = 0
-    while start_resolution_check == "0x0" or attempt_count<10:
+
+    while start_resolution == "0x0" or attempt_count<30:
+        print("Can't get add resolution!",start_resolution)
         start_resolution = driver.execute_script(
             'return document.getElementsByClassName("html5-video-info-panel-content")[0].children[2].children[1].textContent.replace(" ","").split("/")[0]'
         )
-        start_resolution_check = start_resolution
+        # start_resolution_check = start_resolution
         attempt_count+=1
 
     time.sleep(0.5)
@@ -170,33 +175,10 @@ def get_ad_duration(driver):
             length_retry+=1
 
 
+
 def driver_code(driver):
     list_of_urls=[
         # "https://www.youtube.com/watch?v=gMhqxShOxpY",
-        "https://www.youtube.com/watch?v=oZ5HcJVyHPk",
-        "https://www.youtube.com/watch?v=0hktCJ64uH4,"
-        "https://www.youtube.com/watch?v=eXbjEl3xfMk",
-        "https://www.youtube.com/watch?v=g8CbJEPRIus",
-        "https://www.youtube.com/watch?v=dRr_eF3YifA",
-        "https://www.youtube.com/watch?v=nGWGqKNZr_4",
-        "https://www.youtube.com/watch?v=SUyzF0MidbQ",
-        "https://www.youtube.com/watch?v=hfNIt_-SWhs",
-        "https://www.youtube.com/watch?v=riT_rUks5tw",
-        "https://www.youtube.com/watch?v=XN1LC5eiQlM",
-        "https://www.youtube.com/watch?v=hogiMex2Twk",
-        "https://www.youtube.com/watch?v=RpjaIMtJZ8U",
-        "https://www.youtube.com/watch?v=UwWdl3m1S2Q",
-        "https://www.youtube.com/watch?v=aHYx-BoDPgs",
-        "https://www.youtube.com/watch?v=RnP7NqgKydg",
-        "https://www.youtube.com/watch?v=LHThbRpOXvM",
-        "https://www.youtube.com/watch?v=2isYuQZMbdU",
-        "https://www.youtube.com/watch?v=J_qCRmQXJKs",
-        "https://www.youtube.com/watch?v=BUEAKynYvx4",
-        "https://www.youtube.com/watch?v=wcDcOnR6sl8",
-        "https://www.youtube.com/watch?v=qsOCW8YMRyw",
-        "https://www.youtube.com/watch?v=4M5jGbVfItE",
-        "https://www.youtube.com/watch?v=BddP6PYo2gs",
-        "https://www.youtube.com/watch?v=UWQi7mSy_qY",
         ]
 
     for index,url in enumerate(list_of_urls):
