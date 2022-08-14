@@ -127,36 +127,43 @@ def main(driver: webdriver.Chrome):
 
     # maintaing separate text files for all three categories
     # usable list
-    music_trending_2 = sortList(removeDuplicates(music_trending))
-    gaming_trending_2 = sortList(removeDuplicates(gaming_trending))
-    films_trending_2 = sortList(removeDuplicates(films_trending))
+    music_trending_sorted = sortList(removeDuplicates(music_trending))
+    gaming_trending_sorted = sortList(removeDuplicates(gaming_trending))
+    films_trending_sorted = sortList(removeDuplicates(films_trending))
+
+    music_urls = list(dict.fromkeys([a['url'] for a in music_trending_sorted]))
+    gaming_urls = list(dict.fromkeys([a['url']
+                       for a in gaming_trending_sorted]))
+    films_urls = list(dict.fromkeys([a['url'] for a in films_trending_sorted]))
 
     # skipped videos
     # writing to all these seperate files
     print('-- WRITING TO music_only.txt --')
     with open('music_only.txt', 'w+') as f:
-        for link in music_trending_2:
-            f.write(f"'{link['url']}',\n")
+        for link in music_urls:
+            f.write(f"'{link}',\n")
 
     print('-- WRITING TO gaming_only.txt')
     with open('gaming_only.txt', 'w+') as f:
-        for link in gaming_trending_2:
-            f.write(f"'{link['url']}',\n")
+        for link in gaming_urls:
+            f.write(f"'{link}',\n")
 
     print('-- WRITING TO films_only.txt --')
     with open('films_only.txt', 'w+') as f:
-        for link in films_trending_2:
-            f.write(f"'{link['url']}',\n")
+        for link in films_urls:
+            f.write(f"'{link}',\n")
 
     print('-- REMOVING DUPLICATES AND SORTING THE FINAL LIST --')
     final_list = sortList(removeDuplicates(
         all_trending, music_trending, gaming_trending, films_trending))
 
+    final_lst = list(dict.fromkeys([a['url'] for a in final_list]))
+
     print('-- WRITING TO all_trending.txt --')
     # this is our main file
     with open('trending_all.txt', 'w+') as f:
-        for link in final_list:
-            f.write(f"'{link['url']}',\n")
+        for link in final_lst:
+            f.write(f"'{link}',\n")
 
 
 if __name__ == '__main__':
