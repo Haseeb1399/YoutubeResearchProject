@@ -14,6 +14,7 @@ import warnings
 from bs4 import BeautifulSoup as BS
 import time
 from itertools import chain
+import random
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 options = webdriver.ChromeOptions()
@@ -73,11 +74,14 @@ def scrapeFromLink(driver: webdriver.Chrome, url: str):
     return videos_not_so_long, long_videos
 
 
-def removeDuplicates(all_trending: list, music_trending: list, gaming_trending: list, films_trending: list):
+def removeDuplicates(*argv):
     '''
     This function merges all lists of dictionaries, and removes duplicates from them
     '''
-    temp_list = all_trending + music_trending + gaming_trending + films_trending
+    temp_list = []
+    for arg in argv:
+        temp_list += arg
+
     seen = set()
     final_list = []
     for d in temp_list:
@@ -106,39 +110,52 @@ def main(driver: webdriver.Chrome):
     ]
 
     print('-- ALL TRENDING --')
-    all_trending, all_trending_skipped = scrapeFromLink(
+    all_trending, _ = scrapeFromLink(
         driver, links_to_scrape_from[0])
 
     print('-- MUSIC ONLY --')
-    music_trending, music_trending_skipped = scrapeFromLink(
+    music_trending, _ = scrapeFromLink(
         driver, links_to_scrape_from[1])
 
     print('-- GAMING ONLY --')
-    gaming_trending, gaming_trending_skipped = scrapeFromLink(
+    gaming_trending, _ = scrapeFromLink(
         driver, links_to_scrape_from[2])
 
     print('-- FILMS ONLY--')
-    films_trending, films_trending_skipped = scrapeFromLink(
+    films_trending, _ = scrapeFromLink(
         driver, links_to_scrape_from[3])
 
-    print('-- MERGING AND REMOVING DUPLICATES FROM THE FINAL LIST --')
-    semi_final_list = removeDuplicates(
-        all_trending, music_trending, gaming_trending, films_trending)
-    semi_final_list_skipped = removeDuplicates(
-        all_trending_skipped, music_trending_skipped, gaming_trending_skipped, films_trending_skipped)
+    # maintaing separate text files for all three categories
+    # usable list
+    music_trending_2 = sortList(removeDuplicates(music_trending))
+    gaming_trending_2 = sortList(removeDuplicates(gaming_trending))
+    films_trending_2 = sortList(removeDuplicates(films_trending))
 
-    print('-- SORTING THE FINAL LIST AS PER VIDEO DURATION --')
-    final_list = sortList(semi_final_list)
-    final_list_skipped = sortList(semi_final_list_skipped)
-
-    print('-- WRITING TO trending.txt --')
-    # this is our main file
-    with open('trending.txt', 'w+') as f:
-        for link in final_list:
+    # skipped videos
+    # writing to all these seperate files
+    print('-- WRITING TO music_only.txt --')
+    with open('music_only.txt', 'w+') as f:
+        for link in music_trending_2:
             f.write(f"'{link['url']}',\n")
 
-    with open('skipped_videos.txt', 'w+') as f:
-        for link in final_list_skipped:
+    print('-- WRITING TO gaming_only.txt')
+    with open('gaming_only.txt', 'w+') as f:
+        for link in gaming_trending_2:
+            f.write(f"'{link['url']}',\n")
+
+    print('-- WRITING TO films_only.txt --')
+    with open('films_only.txt', 'w+') as f:
+        for link in films_trending_2:
+            f.write(f"'{link['url']}',\n")
+
+    print('-- REMOVING DUPLICATES AND SORTING THE FINAL LIST --')
+    final_list = sortList(removeDuplicates(
+        all_trending, music_trending, gaming_trending, films_trending))
+
+    print('-- WRITING TO all_trending.txt --')
+    # this is our main file
+    with open('trending_all.txt', 'w+') as f:
+        for link in final_list:
             f.write(f"'{link['url']}',\n")
 
 
