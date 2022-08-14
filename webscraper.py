@@ -35,6 +35,9 @@ def scrapeFromLink(driver: webdriver.Chrome, url: str):
     @returns: tuple(dict,dict)
     '''
     driver.get(url)
+    sleep_time = 10
+    print(f'-- sleeping for {sleep_time} seconds --')
+    time.sleep(sleep_time)
     data = []
     soup = BS(driver.page_source, features="lxml")
     trending_videos: list = soup.find_all('a', id='video-title')
@@ -103,23 +106,18 @@ def main(driver: webdriver.Chrome):
     print('-- ALL TRENDING --')
     all_trending, all_trending_skipped = scrapeFromLink(
         driver, links_to_scrape_from[0])
-    print('-- sleeping for 3 seconds --')
-    time.sleep(3)
+
     print('-- MUSIC ONLY --')
     music_trending, music_trending_skipped = scrapeFromLink(
         driver, links_to_scrape_from[1])
-    print('-- sleeping for 3 seconds --')
-    time.sleep(3)
+
     print('-- GAMING ONLY --')
     gaming_trending, gaming_trending_skipped = scrapeFromLink(
         driver, links_to_scrape_from[2])
-    print('-- sleeping for 3 seconds --')
-    time.sleep(3)
+
     print('-- FILMS ONLY--')
     films_trending, films_trending_skipped = scrapeFromLink(
         driver, links_to_scrape_from[3])
-    print('-- sleeping for 3 seconds -- ')
-    time.sleep(3)
 
     print('-- MERGING AND REMOVING DUPLICATES FROM THE FINAL LIST --')
     semi_final_list = removeDuplicates(
