@@ -3,6 +3,8 @@ Connect to your designated developing country using NordVPN and run the script
 Note: this webscraper runs for an approximate of 5-6 minutes (depending on your connection speed
 and CPU's job scheduling). Do NOT remove time.sleep() calls from this source.
 
+Edit: This final list is sorted according to the video durations
+
 Code Author: Harris (24100315)
 '''
 
@@ -14,7 +16,7 @@ import time
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 options = webdriver.ChromeOptions()
-options.headless = True
+options.headless = False
 
 # this speeds up the optimization by stopping the images from loading
 options.add_argument('--blank-settings=imagesEnabled=false')
@@ -29,6 +31,9 @@ links_to_scrape_from = [
 
 
 def scrapeFromLink(driver: webdriver.Chrome, url: str):
+    '''
+    @returns: tuple(dict,dict)
+    '''
     driver.get(url)
     data = []
     soup = BS(driver.page_source, features="lxml")
@@ -57,18 +62,34 @@ def scrapeFromLink(driver: webdriver.Chrome, url: str):
         )
         if video_duration >= 3600:
             print(f'Video {url} skipped for being too long!')
-            long_videos.append(url)
+            long_videos.append({'url': url, 'duration': video_duration})
             continue
-        videos_not_so_long.append(url)
+        videos_not_so_long.append({'url': url, 'duration': video_duration})
 
     return videos_not_so_long, long_videos
 
 
 def removeDuplicates(all_trending: list, music_trending: list, gaming_trending: list, films_trending: list):
+    '''
+    This function merges all lists of dictionaries, and removes duplicates from them
+    '''
     temp_list = all_trending + music_trending + gaming_trending + films_trending
-    # this list wont have any duplicates
-    final_list = list(dict.fromkeys(temp_list))
+    seen = set()
+    final_list = []
+    for d in temp_list:
+        t = tuple(d.items())
+        if t not in seen:
+            seen.add(t)
+            final_list.append(d)
     return final_list
+
+
+def sortList(final_list: list):
+    '''
+    This function takes the final list and sorts it according to the video duration
+    '''
+    new_list = [sorted(final_list, key=lambda d:d['duration'])]
+    return new_list
 
 
 def main(driver: webdriver.Chrome):
@@ -101,20 +122,24 @@ def main(driver: webdriver.Chrome):
     time.sleep(3)
 
     print('-- MERGING AND REMOVING DUPLICATES FROM THE FINAL LIST --')
-    final_list = removeDuplicates(
+    semi_final_list = removeDuplicates(
         all_trending, music_trending, gaming_trending, films_trending)
-    final_list_skipped = removeDuplicates(
+    semi_final_list_skipped = removeDuplicates(
         all_trending_skipped, music_trending_skipped, gaming_trending_skipped, films_trending_skipped)
+
+    print('-- SORTING THE FINAL LIST AS PER VIDEO DURATION --')
+    final_list = sortList(semi_final_list)
+    final_list_skipped = sortList(semi_final_list_skipped)
 
     print('-- WRITING TO trending.txt --')
     # this is our main file
     with open('trending.txt', 'w+') as f:
         for link in final_list:
-            f.write(f"'{link}',\n")
+            f.write(f"'{link['url']}',\n")
 
     with open('skipped_videos.txt', 'w+') as f:
         for link in final_list_skipped:
-            f.write(f"'{link}',\n")
+            f.write(f"'{link['url']}',\n")
 
 
 if __name__ == '__main__':
