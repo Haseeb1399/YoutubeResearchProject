@@ -13,6 +13,7 @@ import time
 import warnings
 from bs4 import BeautifulSoup as BS
 import time
+from itertools import chain
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 options = webdriver.ChromeOptions()
@@ -92,6 +93,7 @@ def sortList(final_list: list):
     This function takes the final list and sorts it according to the video duration
     '''
     new_list = [sorted(final_list, key=lambda d:d['duration'])]
+    new_list = list(chain.from_iterable(new_list))
     return new_list
 
 
