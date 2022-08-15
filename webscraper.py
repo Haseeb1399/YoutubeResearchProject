@@ -92,15 +92,6 @@ def removeDuplicates(*argv):
     return final_list
 
 
-def sortList(final_list: list):
-    '''
-    This function takes the final list and sorts it according to the video duration
-    '''
-    new_list = [sorted(final_list, key=lambda d:d['duration'])]
-    new_list = list(chain.from_iterable(new_list))
-    return new_list
-
-
 def writeToFile(filename: str, urls: list):
     print(f'-- WRITING TO {filename} --')
     with open(filename, 'w+') as f:
@@ -135,17 +126,17 @@ def main(driver: webdriver.Chrome):
 
     # maintaing separate text files for all three categories
     # usable list
-    music_trending_sorted = sortList(removeDuplicates(music_trending))
-    gaming_trending_sorted = sortList(removeDuplicates(gaming_trending))
-    films_trending_sorted = sortList(removeDuplicates(films_trending))
-    general_trending_sorted = sortList(removeDuplicates(general_trending))
+    music_trending = removeDuplicates(music_trending)
+    gaming_trending = removeDuplicates(gaming_trending)
+    films_trending = removeDuplicates(films_trending)
+    general_trending = removeDuplicates(general_trending)
 
-    music_urls = list(dict.fromkeys([a['url'] for a in music_trending_sorted]))
+    music_urls = list(dict.fromkeys([a['url'] for a in music_trending]))
     gaming_urls = list(dict.fromkeys([a['url']
-                       for a in gaming_trending_sorted]))
-    films_urls = list(dict.fromkeys([a['url'] for a in films_trending_sorted]))
+                       for a in gaming_trending]))
+    films_urls = list(dict.fromkeys([a['url'] for a in films_trending]))
     general_urls = list(dict.fromkeys([a['url']
-                        for a in general_trending_sorted]))
+                        for a in general_trending]))
 
     # skipped videos
     # writing to all these seperate files
@@ -155,13 +146,12 @@ def main(driver: webdriver.Chrome):
     writeToFile('general_urls.txt', general_urls)
 
     # picking randomly from the four lists
-    temp_list = random.sample(music_trending, 8) + random.sample(gaming_trending, 8) + \
-        random.sample(films_trending, 8) + random.sample(general_trending, 8)
+    temp_list = random.sample(music_urls, 8) + random.sample(gaming_urls, 8) + \
+        random.sample(films_urls, 8) + random.sample(general_urls, 8)
 
     # removing suplicates and sorting the lists
-    temp_list_2 = sortList(removeDuplicates(temp_list))
 
-    final_lst = list(dict.fromkeys([a['url'] for a in temp_list_2]))
+    final_lst = list(dict.fromkeys(temp_list))
 
     writeToFile('usable.txt', final_lst)
 
