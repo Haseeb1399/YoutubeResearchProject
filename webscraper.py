@@ -126,8 +126,8 @@ def main(driver: webdriver.Chrome):
     writeToFile('general_urls.txt', general_trending)
 
     # picking randomly from the four lists
-    temp_list = random.sample(music_trending, 8) + random.sample(gaming_trending, 8) + \
-        random.sample(films_trending, 8) + random.sample(general_trending, 8)
+    temp_list = random.sample(music_trending, 15) + random.sample(gaming_trending, 15) + \
+        random.sample(films_trending, 15) + random.sample(general_trending, 15)
 
     # removing suplicates and sorting the lists
     temp_list = removeDuplicates(temp_list)
