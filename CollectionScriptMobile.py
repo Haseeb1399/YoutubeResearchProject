@@ -34,18 +34,25 @@ def to_seconds(timestr):
 
 def enable_stats_for_nerds(driver):
 
-   settings = driver.find_element_by_xpath("/html/body/ytm-app/ytm-mobile-topbar-renderer/header/div/ytm-menu/button")
-   settings.click()
+    settings = driver.find_element_by_xpath("/html/body/ytm-app/ytm-mobile-topbar-renderer/header/div/ytm-menu/button")
+    settings.click()
 
-   playback_settings = driver.find_element_by_xpath("/html/body/div[2]/div/ytm-menu-item[3]/button")
-   playback_settings.click()
+    playback_settings = driver.find_element_by_xpath("/html/body/div[2]/div/ytm-menu-item[3]/button")
+    playback_settings.click()
 
-#    stats_for_nerds=driver.execute_script("document.getElementsByClassName('menu-item-button')[1].click()")
 
-   stats_for_nerds = driver.find_element_by_xpath("/html/body/div[2]/dialog/div[2]/ytm-menu-item[2]/button")
-   stats_for_nerds.click()
-   exit_dialog = driver.find_element_by_xpath("/html/body/div[2]/dialog/div[3]/c3-material-button/button")
-   exit_dialog.click()
+    
+    try:
+        stats_for_nerds = driver.find_element_by_xpath("/html/body/div[2]/dialog/div[2]/ytm-menu-item[2]/button")
+        stats_for_nerds.click()
+    except:
+        try:
+            stats_for_nerds=driver.execute_script("document.getElementsByClassName('menu-item-button')[1].click()")
+        except Exception as e:
+            raise e
+    
+    exit_dialog = driver.find_element_by_xpath("/html/body/div[2]/dialog/div[3]/c3-material-button/button")
+    exit_dialog.click()
 
 def start_playing_video(driver):
     player_state = driver.execute_script(
@@ -73,7 +80,7 @@ def get_ad_info(driver, movie_id):
 
     time.sleep(0.5)
     skip_retry=0
-    while skip_retry<50:
+    while skip_retry<20:
         skippable_add = driver.execute_script(
             'return document.getElementsByClassName("ytp-ad-skip-button-container").length'
         )
@@ -188,9 +195,10 @@ def get_ad_duration(driver):
 
 def driver_code(driver):
     list_of_urls = [
-        "https://www.youtube.com/watch?v=EmxXSxjDhJ4&t",
-        "https://www.youtube.com/watch?v=k5X00SMHb0I",
-        "https://www.youtube.com/watch?v=l6BChpns5w8"
+        # "https://www.youtube.com/watch?v=EmxXSxjDhJ4&t",
+        # "https://www.youtube.com/watch?v=k5X00SMHb0I",
+        # "https://www.youtube.com/watch?v=l6BChpns5w8"
+        "https://www.youtube.com/watch?v=ec1vg-gv9Dk&t=1s",
 
     ]
 
@@ -264,7 +272,7 @@ def driver_code(driver):
                     "Resolution": resolution,
                 }
                 buffer_size_with_ad.append(
-                    [ad_id,0.0] #Start of video. Main Buffer will be 0s.
+                    [ad_id,0.0,0.0] #Start of video. Main Buffer will be 0s.
                 )
                 previous_ad_id = ad_id
 
@@ -335,11 +343,11 @@ def driver_code(driver):
                             ## Appends the last recorded main_video_buffer when ad was played.
                             if len(actual_buffer_reads) >= 1:
                                 buffer_size_with_ad.append(
-                                    [ad_id, actual_buffer_reads[-1]]
+                                    [ad_id, actual_buffer_reads[-1],video_played_in_seconds]
                                 )  # Append last buffer value to keep track.
                             else:
                                 buffer_size_with_ad.append(
-                                    [ad_id,0.0]
+                                    [ad_id,0.0,video_played_in_seconds]
                                 )  # Ad was at the start.
 
 
@@ -425,6 +433,7 @@ def driver_code(driver):
                         )
                     )
                     # Actual Buffer
+                    ## [ID,Last Buffer Before Ad, How much video played when ad played, Buffer after ad finished]
                     if ad_just_played:
                         for i in range(len(buffer_size_with_ad)):
                             if len(buffer_size_with_ad[i]) <= 2:
@@ -465,4 +474,5 @@ driver.set_network_conditions(
 )
 driver_code(driver)
 driver.quit()
+
 
