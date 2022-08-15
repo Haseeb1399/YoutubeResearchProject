@@ -67,29 +67,16 @@ def scrapeFromLink(driver: webdriver.Chrome, url: str):
         )
         if video_duration >= 3600:
             print(f'Video {url} skipped for being too long!')
-            long_videos.append({'url': url, 'duration': video_duration})
+            long_videos.append(url)
             continue
-        videos_not_so_long.append({'url': url, 'duration': video_duration})
+        videos_not_so_long.append(url)
 
     return videos_not_so_long, long_videos
 
 
-def removeDuplicates(*argv):
-    '''
-    This function merges all lists of dictionaries, and removes duplicates from them
-    '''
-    temp_list = []
-    for arg in argv:
-        temp_list += arg
-
-    seen = set()
-    final_list = []
-    for d in temp_list:
-        t = tuple(d.items())
-        if t not in seen:
-            seen.add(t)
-            final_list.append(d)
-    return final_list
+def removeDuplicates(lst: list):
+    to_return = list(dict.fromkeys(lst))
+    return to_return
 
 
 def writeToFile(filename: str, urls: list):
@@ -131,27 +118,20 @@ def main(driver: webdriver.Chrome):
     films_trending = removeDuplicates(films_trending)
     general_trending = removeDuplicates(general_trending)
 
-    music_urls = list(dict.fromkeys([a['url'] for a in music_trending]))
-    gaming_urls = list(dict.fromkeys([a['url']
-                       for a in gaming_trending]))
-    films_urls = list(dict.fromkeys([a['url'] for a in films_trending]))
-    general_urls = list(dict.fromkeys([a['url']
-                        for a in general_trending]))
-
     # skipped videos
     # writing to all these seperate files
-    writeToFile('music_only.txt', music_urls)
-    writeToFile('gaming_only.txt', gaming_urls)
-    writeToFile('films_only.txt', films_urls)
-    writeToFile('general_urls.txt', general_urls)
+    writeToFile('music_only.txt', music_trending)
+    writeToFile('gaming_only.txt', gaming_trending)
+    writeToFile('films_only.txt', films_trending)
+    writeToFile('general_urls.txt', general_trending)
 
     # picking randomly from the four lists
-    temp_list = random.sample(music_urls, 8) + random.sample(gaming_urls, 8) + \
-        random.sample(films_urls, 8) + random.sample(general_urls, 8)
+    temp_list = random.sample(music_trending, 8) + random.sample(gaming_trending, 8) + \
+        random.sample(films_trending, 8) + random.sample(general_trending, 8)
 
     # removing suplicates and sorting the lists
 
-    final_lst = list(dict.fromkeys(temp_list))
+    final_lst = removeDuplicates(temp_list)
 
     writeToFile('usable.txt', final_lst)
 
