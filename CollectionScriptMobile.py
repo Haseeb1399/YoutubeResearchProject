@@ -73,7 +73,7 @@ def get_ad_info(driver, movie_id):
 
     time.sleep(0.5)
     skip_retry=0
-    while skip_retry<20:
+    while skip_retry<50:
         skippable_add = driver.execute_script(
             'return document.getElementsByClassName("ytp-ad-skip-button-container").length'
         )
