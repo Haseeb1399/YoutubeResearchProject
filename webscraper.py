@@ -101,6 +101,13 @@ def sortList(final_list: list):
     return new_list
 
 
+def writeToFile(filename: str, urls: list):
+    print(f'-- WRITING TO {filename} --')
+    with open(filename, 'w+') as f:
+        for url in urls:
+            f.write(f"'{url}',\n")
+
+
 def main(driver: webdriver.Chrome):
     links_to_scrape_from = [
         "https://www.youtube.com/feed/trending",
@@ -110,7 +117,8 @@ def main(driver: webdriver.Chrome):
     ]
 
     print('-- ALL TRENDING --')
-    all_trending, _ = scrapeFromLink(
+    # this also includes videos that are not related to any of them three categories
+    general_trending, _ = scrapeFromLink(
         driver, links_to_scrape_from[0])
 
     print('-- MUSIC ONLY --')
@@ -130,40 +138,32 @@ def main(driver: webdriver.Chrome):
     music_trending_sorted = sortList(removeDuplicates(music_trending))
     gaming_trending_sorted = sortList(removeDuplicates(gaming_trending))
     films_trending_sorted = sortList(removeDuplicates(films_trending))
+    general_trending_sorted = sortList(removeDuplicates(general_trending))
 
     music_urls = list(dict.fromkeys([a['url'] for a in music_trending_sorted]))
     gaming_urls = list(dict.fromkeys([a['url']
                        for a in gaming_trending_sorted]))
     films_urls = list(dict.fromkeys([a['url'] for a in films_trending_sorted]))
+    general_urls = list(dict.fromkeys([a['url']
+                        for a in general_trending_sorted]))
 
     # skipped videos
     # writing to all these seperate files
-    print('-- WRITING TO music_only.txt --')
-    with open('music_only.txt', 'w+') as f:
-        for link in music_urls:
-            f.write(f"'{link}',\n")
+    writeToFile('music_only.txt', music_urls)
+    writeToFile('gaming_only.txt', gaming_urls)
+    writeToFile('films_only.txt', films_urls)
+    writeToFile('general_urls.txt', general_urls)
 
-    print('-- WRITING TO gaming_only.txt')
-    with open('gaming_only.txt', 'w+') as f:
-        for link in gaming_urls:
-            f.write(f"'{link}',\n")
+    # picking randomly from the four lists
+    temp_list = random.sample(music_trending, 20) + random.sample(gaming_trending, 20) + \
+        random.sample(films_trending, 20) + random.sample(general_trending, 20)
 
-    print('-- WRITING TO films_only.txt --')
-    with open('films_only.txt', 'w+') as f:
-        for link in films_urls:
-            f.write(f"'{link}',\n")
+    # removing suplicates and sorting the lists
+    temp_list_2 = sortList(removeDuplicates(temp_list))
 
-    print('-- REMOVING DUPLICATES AND SORTING THE FINAL LIST --')
-    final_list = sortList(removeDuplicates(
-        all_trending, music_trending, gaming_trending, films_trending))
+    final_lst = list(dict.fromkeys([a['url'] for a in temp_list_2]))
 
-    final_lst = list(dict.fromkeys([a['url'] for a in final_list]))
-
-    print('-- WRITING TO all_trending.txt --')
-    # this is our main file
-    with open('trending_all.txt', 'w+') as f:
-        for link in final_lst:
-            f.write(f"'{link}',\n")
+    writeToFile('usable.txt', final_lst)
 
 
 if __name__ == '__main__':
