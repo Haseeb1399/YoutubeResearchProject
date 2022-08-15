@@ -131,7 +131,7 @@ def main(driver: webdriver.Chrome):
 
     # removing suplicates and sorting the lists
 
-    final_lst = removeDuplicates(temp_list)
+    final_lst = random.shuffle(removeDuplicates(temp_list))
 
     writeToFile('usable.txt', final_lst)
 
