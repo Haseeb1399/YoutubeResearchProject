@@ -130,10 +130,10 @@ def main(driver: webdriver.Chrome):
         random.sample(films_trending, 8) + random.sample(general_trending, 8)
 
     # removing suplicates and sorting the lists
-
-    final_lst = random.shuffle(removeDuplicates(temp_list))
-
-    writeToFile('usable.txt', final_lst)
+    temp_list = removeDuplicates(temp_list)
+    random.shuffle(temp_list)
+    final_list = temp_list
+    writeToFile('usable.txt', final_list)
 
 
 if __name__ == '__main__':
