@@ -8,18 +8,19 @@ from pathlib import Path
 
 mobile_emulation = {
    "deviceMetrics": { "width": 360, "height": 640, "pixelRatio": 3.0 },
-   "userAgent": "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19" 
+ "userAgent": "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19" 
 }
 
+
+# mobile_emulation = { "deviceName": "Nexus 6" }
 latencyInMilliseconds = 5
-downloadLimitMbps = 3.8
+downloadLimitMbps = 9
 uploadLimitMbps = 5
 
 TIME_TO_SLEEP = float(2/downloadLimitMbps)
 
-
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-chrome_options = Options()
+chrome_options = webdriver.ChromeOptions()
 chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
 # chrome_options.headless=True
 error_list=[]
@@ -50,10 +51,12 @@ def start_playing_video(driver):
     player_state = driver.execute_script(
       "return document.getElementById('movie_player').getPlayerState()"
     )
+    print("Player State: ",player_state)
     if player_state==5:
         driver.execute_script("document.getElementsByClassName('ytp-large-play-button ytp-button')[0].click()")
-    else:
-        raise Exception("Invalid state!")
+    
+    if player_state==1:
+        return
 
 
 def play_video_if_not_playing(driver):
@@ -68,8 +71,8 @@ def play_video_if_not_playing(driver):
 def get_ad_info(driver, movie_id):
     # print("Inside Video info", movie_id)
 
-    skip_retry=0
     time.sleep(0.5)
+    skip_retry=0
     while skip_retry<20:
         skippable_add = driver.execute_script(
             'return document.getElementsByClassName("ytp-ad-skip-button-container").length'
@@ -79,7 +82,7 @@ def get_ad_info(driver, movie_id):
     if skippable_add:
         skip_try=0
         found=False
-        while skip_try<5:
+        while skip_try<10:
             try:
                 skip_duration = (
                     driver.execute_script(
@@ -102,35 +105,35 @@ def get_ad_info(driver, movie_id):
 
     attempt_count = 0
 
-    while start_resolution == "0x0" or attempt_count<30:
-        print("Can't get add resolution!",start_resolution)
+    while attempt_count<20:
         start_resolution = driver.execute_script(
             'return document.getElementsByClassName("html5-video-info-panel-content")[0].children[2].children[1].textContent.replace(" ","").split("/")[0]'
         )
         # start_resolution_check = start_resolution
         attempt_count+=1
 
-    time.sleep(0.5)
-
-    ad_id = driver.execute_script(
-            'return document.getElementsByClassName("html5-video-info-panel-content")[0].children[0].children[1].textContent.replace(" ","").split("/")[0]'
-    )
-    while str(ad_id.strip()) == str(movie_id.strip()):
-        ad_id = driver.execute_script(
-            'return document.getElementsByClassName("html5-video-info-panel-content")[0].children[0].children[1].textContent.replace(" ","").split("/")[0]'
-        )
-        print(str(ad_id) == str(movie_id),ad_id,movie_id)
+    print("Ad Skippable: ",skippable_add, "Skip Duration: ",skip_duration)
+    # ad_id = driver.execute_script(
+    #         'return document.getElementsByClassName("html5-video-info-panel-content")[0].children[0].children[1].textContent.replace(" ","").split("/")[0]'
+    # )
+    # while str(ad_id.strip()) == str(movie_id.strip()):
+    #     ad_id = driver.execute_script(
+    #         'return document.getElementsByClassName("html5-video-info-panel-content")[0].children[0].children[1].textContent.replace(" ","").split("/")[0]'
+    #     )
+        # print(str(ad_id) == str(movie_id),ad_id,movie_id)
 
     # print("Ad Id is" + str(ad_id))
-    return ad_id, skippable_add, skip_duration, start_resolution
+    return skippable_add, skip_duration, start_resolution
 
 def record_ad_buffer(driver,ad_length):
     ad_buffer_list=[]
     ad_playing = driver.execute_script(
             "return document.getElementsByClassName('ad-showing').length"
     )
+    ad_id = ""
 
     while ad_playing:
+        
         ad_buffer = float(
             driver.execute_script(
                 'return document.getElementsByClassName("html5-video-info-panel-content")[0].children[10].children[1].textContent.split(" ")[1]'
@@ -151,6 +154,13 @@ def record_ad_buffer(driver,ad_length):
             except:
                 current_time_retry+=1
 
+        try:
+            ad_id = driver.execute_script(
+                'return document.getElementsByClassName("html5-video-info-panel-content")[0].children[0].children[1].textContent.replace(" ","").split("/")[0]'
+            )
+        except:
+            pass
+    
         ad_played_in_seconds = ad_played
         ad_buffer_list.append((ad_buffer, ad_played_in_seconds,res))
 
@@ -158,7 +168,7 @@ def record_ad_buffer(driver,ad_length):
             "return document.getElementsByClassName('ad-showing').length"
         )
     
-    return ad_buffer_list
+    return ad_id, ad_buffer_list
 
 def get_ad_duration(driver):
     length_retry=0
@@ -178,67 +188,12 @@ def get_ad_duration(driver):
 
 def driver_code(driver):
     list_of_urls = [
-        # 'https://www.youtube.com/watch?v=7Lpfldnjias',
-        # 'https://www.youtube.com/watch?v=TC38zBAMtd4',
-        # 'https://www.youtube.com/watch?v=uM-aBsKK2VE',
-        # 'https://www.youtube.com/watch?v=aosg9hapID4',
-        # 'https://www.youtube.com/watch?v=9Pj5DXdLQeM',
-        # 'https://www.youtube.com/watch?v=27EF723ZDmI',
-        'https://www.youtube.com/watch?v=DsdT3D_zKF0',
-        'https://www.youtube.com/watch?v=k7B0h0WSL_4',
-        'https://www.youtube.com/watch?v=YoMKwBMIr2Q',
-        'https://www.youtube.com/watch?v=nmidz2KY2JU',
-        'https://www.youtube.com/watch?v=CaIYD369OJI',
-        'https://www.youtube.com/watch?v=qzKKfiujgBA',
-        'https://www.youtube.com/watch?v=AtvyRcA83vw',
-        'https://www.youtube.com/watch?v=jk7QSGwupPA',
-        'https://www.youtube.com/watch?v=33-KvBH_en8',
-        'https://www.youtube.com/watch?v=i83oqi85qiI',
-        'https://www.youtube.com/watch?v=TgcruVx0dNM',
-        'https://www.youtube.com/watch?v=jXbcItQH0lE',
-        'https://www.youtube.com/watch?v=L5PW5r3pEOg',
-        'https://www.youtube.com/watch?v=aIsFywuZPoQ',
-        'https://www.youtube.com/watch?v=d5s_IGuOJEc',
-        'https://www.youtube.com/watch?v=RlOB3UALvrQ',
-        'https://www.youtube.com/watch?v=2QBYL51ZzvU',
-        'https://www.youtube.com/watch?v=Zi88i4CpHe4',
-        'https://www.youtube.com/watch?v=2qNk8AvKG4w',
-        'https://www.youtube.com/watch?v=uIq--9E68-M',
-        'https://www.youtube.com/watch?v=Ck1Cl3lHHM8',
-        'https://www.youtube.com/watch?v=DotnJ7tTA34',
-        'https://www.youtube.com/watch?v=rr-druMELxs',
-        'https://www.youtube.com/watch?v=7WyHtSlvHD4',
-        'https://www.youtube.com/watch?v=7-N4ssZc0cc',
-        'https://www.youtube.com/watch?v=gW9Cgg4qg-U',
-        'https://www.youtube.com/watch?v=fRaK6EMkzW4',
-        'https://www.youtube.com/watch?v=1eOJyjXhGmw',
-        'https://www.youtube.com/watch?v=-c4QtUTP908',
-        'https://www.youtube.com/watch?v=cbHIMNxT7Zc',
-        'https://www.youtube.com/watch?v=Qpf26PtBXgo',
-        'https://www.youtube.com/watch?v=v1ADEPnPt54',
-        'https://www.youtube.com/watch?v=CtRsuSt9sys',
-        'https://www.youtube.com/watch?v=NtWCW6lQqFs',
-        'https://www.youtube.com/watch?v=TTwlhJzXHo4',
-        'https://www.youtube.com/watch?v=BGNkkVrJZks',
-        'https://www.youtube.com/watch?v=9FDdozo3dLs',
-        'https://www.youtube.com/watch?v=Xlvr4A4hmhM',
-        'https://www.youtube.com/watch?v=02ODKglDVQs',
-        'https://www.youtube.com/watch?v=0HZ9UO7pLfo',
-        'https://www.youtube.com/watch?v=OqdA6DKV1Fs',
-        'https://www.youtube.com/watch?v=B9PDYlaV84w',
-        'https://www.youtube.com/watch?v=1ntkDbxTnXA',
-        'https://www.youtube.com/watch?v=Br8kpPCVbis',
-        'https://www.youtube.com/watch?v=nu7as_jXLOo',
-        'https://www.youtube.com/watch?v=j91oSWmr1f4',
-        'https://www.youtube.com/watch?v=8Q4_O4A2Ux4',
-        'https://www.youtube.com/watch?v=KI6TFG0-mTY',
-        'https://www.youtube.com/watch?v=SlOuyaSyi7Q',
-        'https://www.youtube.com/watch?v=9tcFnx0-cQY',
-        'https://www.youtube.com/watch?v=mGhztU0U8Mc',
-        'https://www.youtube.com/watch?v=3wyEn6tqnpc',
-        'https://www.youtube.com/watch?v=-ddYMCa_58o',
-        'https://www.youtube.com/watch?v=4tYuIU7pLmI',
+        "https://www.youtube.com/watch?v=EmxXSxjDhJ4&t",
+        "https://www.youtube.com/watch?v=k5X00SMHb0I",
+        "https://www.youtube.com/watch?v=l6BChpns5w8"
+
     ]
+
 
     for index,url in enumerate(list_of_urls):
         global error_list
@@ -258,9 +213,9 @@ def driver_code(driver):
 
         try:
             driver.get(url)
-            time.sleep(2)
-            
+        
             #Enable Stats
+            time.sleep(2) 
             retry_count=0
             while retry_count<5:
                 try:
@@ -273,8 +228,15 @@ def driver_code(driver):
             start_playing_video(driver)
 
 
+            # Turning off Autoplay
             try:
                 driver.execute_script("document.getElementsByClassName('ytm-autonav-toggle-button-container')[0].click()")
+            except:
+                pass
+
+            # Turning off Volumne.
+            try:
+                driver.execute_script("document.getElementsByClassName('video-stream html5-main-video')[0].volume=0")
             except:
                 pass
 
@@ -288,7 +250,9 @@ def driver_code(driver):
             if ad_playing:
                 time.sleep(0.1)
                 print("ad at start of video!")
-                ad_id, skippable, skip_duration, resolution = get_ad_info(driver, movie_id)
+                skippable, skip_duration, resolution = get_ad_info(driver, movie_id)
+                ad_length=get_ad_duration(driver)
+                ad_id, ad_buf_details = record_ad_buffer(driver,ad_length)
                 
                 print("Ad ID: ",ad_id, "Skippable? ",skippable," Skip Duration: ",skip_duration,"Resolution: ",resolution)
 
@@ -304,9 +268,7 @@ def driver_code(driver):
                 )
                 previous_ad_id = ad_id
 
-                ad_length=get_ad_duration(driver)
 
-                ad_buf_details = record_ad_buffer(driver,ad_length)
                 to_write = {"ad_length":ad_length,"buffer":ad_buf_details}
                 ad_buffer_information[ad_id]=to_write
                 print("Advertisement " + str(unique_add_count) + " Data collected.")
@@ -358,9 +320,10 @@ def driver_code(driver):
                     ad_length=get_ad_duration(driver)
 
 
-                    ad_id, skippable, skip_duration, resolution = get_ad_info(
+                    skippable, skip_duration, resolution = get_ad_info(
                         driver, movie_id
                     )
+                    ad_id, ad_buf_details = record_ad_buffer(driver,ad_length)
                     
                     print("Ad ID: ",ad_id, "Skippable? ",skippable," Skip Duration: ",skip_duration,"Resolution: ",resolution)
 
@@ -389,7 +352,7 @@ def driver_code(driver):
                                     "SkipDuration": skip_duration,
                                     "Resolution": resolution,
                                 }
-                                ad_buf_details = record_ad_buffer(driver,ad_length)
+                                
                                 to_write = {"ad_length":ad_length,"buffer":ad_buf_details}
                                 ad_buffer_information[ad_id]=to_write
                                 print(
@@ -401,7 +364,6 @@ def driver_code(driver):
                                 current_value = video_info_details[ad_id]["Count"]
                                 video_info_details[ad_id]["Count"] = current_value + 1
 
-                                ad_buf_details = record_ad_buffer(driver,ad_length)
                                 name=ad_id+"_"+ str(video_info_details[ad_id]["Count"])
                                 to_write = {"ad_length":ad_length,"buffer":ad_buf_details}
                                 ad_buffer_information[name]=to_write
@@ -482,7 +444,8 @@ def driver_code(driver):
 
                     buffer_list.append(buffer_ratio)
                     previous_ad_id = url.split("=")[1]
-        except:
+        except Exception as e:
+            print(e)
             print("Error occured while collecting data! Moving to next video!")
             print("Video: ", url)
             with open("faultyVideos.txt", "a") as f:
@@ -502,5 +465,4 @@ driver.set_network_conditions(
 )
 driver_code(driver)
 driver.quit()
-
 
